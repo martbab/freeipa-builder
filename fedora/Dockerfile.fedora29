@@ -4,8 +4,8 @@ MAINTAINER [FreeIPA Developers freeipa-devel@lists.fedorahosted.org]
 RUN echo 'deltarpm = false' >> /etc/dnf/dnf.conf \
     && dnf update -y dnf \
     && dnf install -y dnf-plugins-core sudo wget \
-    && dnf config-manager --set-enabled updates-testing \
-    && dnf copr enable -y @freeipa/freeipa-master \
+    && dnf config-manager --set-disabled updates-testing \
+    && dnf copr enable -y @freeipa/freeipa-4-7 \
     # FIXME: due to packaging issues the following is not a dependency of
     # python{2,3}-rpm-macros, and must be installed manually
     && dnf install -y python-srpm-macros \
@@ -13,9 +13,10 @@ RUN echo 'deltarpm = false' >> /etc/dnf/dnf.conf \
 
 # install build dependencies from COPR and latest devel branch
 RUN dnf install -y @buildsys-build @development-tools \
-    && wget https://raw.githubusercontent.com/freeipa/freeipa/master/freeipa.spec.in \
+    && wget https://raw.githubusercontent.com/freeipa/freeipa/ipa-4-7/freeipa.spec.in \
+    && dnf -y module enable nodejs:12 \
     && dnf builddep -y --spec ./freeipa.spec.in \
-        -D "with_lint 1" -D "with_wheels 1" --best --allowerasing \
+        -D "with_lint 1" -D "with_wheels 1" -D "with_python2 0" --best --allowerasing \
     && dnf clean all \
     && rm -f ./freeipa.spec.in
 
